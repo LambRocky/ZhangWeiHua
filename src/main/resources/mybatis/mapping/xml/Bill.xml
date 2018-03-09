@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.accp.dao.BillDao">
+
+
+    <select id="selectBillById" resultMap="listBillMap">
+        select * FROM smbms_bill,smbms_provider where smbms_bill.providerid=smbms_provider.id
+        and smbms_bill.id=#{id}
+    </select>
+
+    <select id="listBill" resultMap="listBillMap">
+        select * FROM smbms_bill,smbms_provider where smbms_bill.providerid=smbms_provider.id
+    </select>
+
+    <select id="queryBillWithIf" resultMap="listBillMap">
+        select * from smbms_bill,smbms_provider  where smbms_provider.id=smbms_bill.providerId
+        <if test="name!=null and  name!=''">
+            and  smbms_bill.productName like CONCAT('%',#{name},'%')
+        </if>
+        <if test="id>0">
+            and  smbms_bill.providerId =#{id}
+        </if>
+        <if test="pay>0">
+            and smbms_bill.isPayment=#{pay}
+        </if>
+        ORDER by smbms_bill.creationDate
+    </select>
+
+    <resultMap id="listBillMap" type="Bill">
+        <result column="id" property="id"></result>
+        <result column="billCode" property="billCode"></result>
+        <result column="productName" property="productName"></result>
+        <result column="productDesc" property="productDesc"></result>
+        <result column="productUnit" property="productUnit"></result>
+        <result column="productCount" property="productCount"></result>
+        <result column="providerId" property="providerId"></result>
+        <result column="totalPrice" property="totalPrice"></result>
+        <result column="isPayment" property="isPayment"></result>
+        <result column="creationDate" property="creationDate"></result>
+        <association property="providers" javaType="Provider">
+            <result column="id" property="id"></result>
+            <result column="proName" property="proName"></result>
+        </association>
+    </resultMap>
+
+
+    <update id="modifyBill">
+        UPDATE smbms_bill
+        <set>
+            <if test="billCode!=null and billCode!=''">
+                billCode=#{billCode},
+            </if>
+            <if test="productName!=null and productName!=''">
+                productName=#{productName},
+            </if>
+            <if test="productUnit!=null and productUnit!=''">
+                billCode=#{billCode},
+            </if>
+            <if test="productCount>0">
+                productCount=#{productCount},
+            </if>
+            <if test="totalPrice>0">
+                totalPrice=#{totalPrice},
+            </if>
+            <if test="providerId>0">
+                providerId=#{providerId},
+            </if>
+            <if test="isPayment>0">
+                isPayment=#{isPayment},
+            </if>
+            <if test="modifyDate!=null">
+                modifyDate=#{modifyDate},
+            </if>
+        </set>
+
+        where id=#{id}
+    </update>
+
+    <insert id="insertBill">
+        insert into smbms_bill(billCode,productName,productUnit,productCount,totalPrice,providerId,isPayment,createdBy,creationDate)
+        VALUES(#{billCode},#{productName},#{productUnit},#{productCount},#{totalPrice},#{providerId},#{isPayment},#{createdBy},#{creationDate})
+    </insert>
+
+    <delete id="deleteBill">
+        delete from smbms_bill where id=#{id}
+    </delete>
+</mapper>

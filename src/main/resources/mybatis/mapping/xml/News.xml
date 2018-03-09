@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.accp.dao.NewsDao">
+    <select id="queryNews" resultMap="News">
+        select * from kab_news
+    </select>
+
+    <select id="queryNewss" resultMap="News">
+        select * from kab_news where
+        <if test="id >0">
+            id=#{id}
+        </if>
+    </select>
+
+    <select id="queryComment" resultMap="News">
+        select * from kab_news n,kab_comment c where n.id=#{id} AND n.id=c.newsId
+
+    </select>
+
+
+
+    <update id="updateNews">
+        update kab_news
+        <set>
+            <if test="title!=null and title!=''">
+                title=#{title},
+            </if>
+            <if test="creationDate!=null">
+                creationDate=#{creationDate},
+            </if>
+            <if test="visitorCount>=0">
+                visitorCount=#{visitorCount},
+            </if>
+            <if test="createByName!=null and createByName!=''">
+                createByName=#{createByName},
+            </if>
+            <if test="isRecommend>0">
+                isRecommend=#{isRecommend},
+            </if>
+            <if test="content">
+                content=#{content}
+            </if>
+        </set>
+        WHERE id=#{id}
+    </update>
+    <insert id="insertNews">
+        insert into kab_news(id,title,visitorCount,content,isRecommend,createByName,creationDate)
+        VALUES(DEFAULT,#{title},#{visitorCount},#{content},#{isRecommend},#{createByName},#{creationDate})
+    </insert>
+    <delete id="deleteNews">
+        delete from kab_news where id=#{id}
+    </delete>
+    <delete id="deleteComment">
+        delete from kab_comment where newsId=#{id}
+    </delete>
+    <resultMap id="News" type="News">
+        <result column="id" property="id"></result>
+        <result column="title" property="title"></result>
+        <result column="creationDate" property="creationDate"></result>
+        <result column="isRecommend" property="isRecommend"></result>
+        <result column="createByName" property="createByName"></result>
+        <result column="visitorCount" property="visitorCount"></result>
+        <result column="content" property="content"></result>
+        <collection property="comments" javaType="Comment">
+            <result column="id" property="id"></result>
+            <result column="contents" property="contents"></result>
+            <result column="createtime" property="createtime"></result>
+            <result column="nickname" property="nickname"></result>
+            <result column="newsId" property="newsId"></result>
+        </collection>
+    </resultMap>
+
+
+    <select id="queryNewByPager" resultType="News">
+         select * from kab_news
+         limit #{pagerNo},#{pageSize}
+    </select>
+
+    <select id="queryCount" resultType="_int">
+        SELECT count(1) from kab_news
+    </select>
+
+</mapper>

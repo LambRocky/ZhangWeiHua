@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.accp.dao.UserDao">
+
+    <select id="user" resultType="User">
+        select * FROM smbms_user where userCode = #{userCode} and userPassword =#{userPassword}
+
+    </select>
+
+    <select id="listAll" resultMap="conditionMap">
+        select * FROM smbms_user,smbms_role where smbms_user.userRole=smbms_role.id
+        LIMIT #{pageNo},#{pageSize}
+    </select>
+
+    <select id="listByCondition" resultMap="conditionMap">
+        select * FROM smbms_user,smbms_role where smbms_user.userRole=smbms_role.id
+        <if test="userName!=null and userName!=''">
+            and userName like concat('%',#{userName},'%')
+        </if>
+        <if test="userRole>0">
+            and userRole=#{userRole}
+        </if>
+
+    </select>
+
+    <resultMap id="conditionMap" type="User">
+        <result column="id" property="id"></result>
+        <result column="userCode" property="userCode"></result>
+        <result column="userName" property="userName"></result>
+        <result column="userPassword" property="userPassword"></result>
+        <result column="gender" property="gender"></result>
+        <result column="birthday" property="birthday"></result>
+        <result column="phone" property="phone"></result>
+        <result column="address" property="address"></result>
+        <result column="userRole" property="userRole"></result>
+        <result column="creationDate" property="creationDate"></result>
+        <result column="createdBy" property="createdBy"></result>
+        <association property="role" javaType="Role">
+            <result property="roleName" column="roleName"></result>
+        </association>
+    </resultMap>
+
+    <select id="queryUsersRows" resultType="_int">
+        select count(1) FROM smbms_user,smbms_role where smbms_user.userRole=smbms_role.id
+        <if test="userName!=null and userName!=''">
+            and userName like concat('%',#{userName},'%')
+        </if>
+        <if test="userRole>0">
+            and userRole=#{userRole}
+        </if>
+    </select>
+
+    <delete id="deleteUse">
+        delete from smbms_user where id=#{id}
+    </delete>
+
+    <insert id="insertUse">
+        insert into smbms_user (userCode , userName , userPassword , gender , birthday , phone , address , userRole , createdBy , creationDate , modifyBy , modifyDate )
+        VALUES (#{userCode},#{userName},#{userPassword},#{gender},#{birthday},#{phone},#{address},#{userRole},#{createdBy},#{creationDate},NULL ,NULL )
+    </insert>
+
+    <select id="selectUserByCode" resultType="_int">
+        select COUNT(*) from smbms_user
+        <where>
+            <if test="userCode!=null and userCode!=''">
+                userCode=#{userCode}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectUserById" resultMap="conditionMap">
+        select * from smbms_user,smbms_role  where smbms_user.userRole=smbms_role.id and  smbms_user.id=#{id}
+    </select>
+
+    <update id="updateUser">
+        update smbms_user
+        <set>
+            <if test="userName!=null and userName!=''">
+                userName=#{userName},
+            </if>
+            <if test="gender>0">
+                gender=#{gender},
+            </if>
+            <if test="birthday!=null">
+                birthday=#{birthday},
+            </if>
+            <if test="phone!=null and phone!=''">
+                phone=#{phone},
+            </if>
+            <if test="address!=null and address!=''">
+                address=#{address},
+            </if>
+            <if test="userRole>0">
+                userRole=#{userRole},
+            </if>
+            <if test="modifyBy>0">
+                modifyBy=#{modifyBy},
+            </if>
+            <if test="modifyDate!=null">
+                modifyDate=#{modifyDate},
+            </if>
+
+        </set>
+        where id=#{id}
+
+    </update>
+</mapper>
